@@ -19,7 +19,7 @@ prestart() {
 
 start_foreground() {
       prestart
-      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT" $MN_EXT_FLAGS
+      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
 
 start_cli() {

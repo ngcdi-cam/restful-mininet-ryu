@@ -8,7 +8,16 @@ Ryu SDN controller with RESTful Mininet.
 
 ## Getting Started
 
-### Start with `run_container.py`
+
+### Start with `run_containers.py` in Docker containers
+
+Create the docker network. You only need to do this once.
+
+```
+$ docker network create mas-network
+```
+
+Then, run
 
 ```
 $ run_containers.py -c ryu-config.yaml

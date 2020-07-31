@@ -1,0 +1,22 @@
+constants:
+  docker_container_name: mnet1
+  docker_image: mperhez/mininet
+  docker_network: mas-network
+  mininet_controller_host: ryu-sdn-1
+  mininet_topo: mesh,3,3
+
+containers:
+- name: $docker_container_name
+  hostname: $docker_container_name
+  image: $docker_image
+  privileged: True
+  environment:
+    MN_CONTROLLER_HOST: $mininet_controller_host
+    MN_TOPO: $mininet_topo
+  volumes: 
+    $base_dir++/mininet:
+      bind: /mnscripts
+      mode: ro
+  command: /mnscripts/mininet_rest start-foreground
+  network: $docker_network
+  remove: True

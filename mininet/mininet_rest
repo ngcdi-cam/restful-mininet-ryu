@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# Startup script for Mininet REST
+
+BASE_DIR="$(dirname $0)"
+MN_CLI_COMMAND="restful_api $MN_RESTFUL_HOST $MN_RESTFUL_PORT"
+PID_FILE=/run/mininet_rest.pid
+
+source "$BASE_DIR/mininet_rest.conf"
+
+MN_CONTROLLER_IP=${MN_CONTROLLER_HOST:+$(getent ahostsv4 "$MN_CONTROLLER_HOST" | head -n1 | awk '{print $1}')}
+
+prestart() {
+      cd "$BASE_DIR"
+      if ! pgrep -x ovs-vswitchd > /dev/null; then
+            service openvswitch-switch start
+      fi
+}
+
+start_foreground() {
+      prestart
+      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT" $MN_EXT_FLAGS
+}
+
+start_cli() {
+      prestart
+      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS
+}
+
+start() {
+      start-stop-daemon --make-pidfile --pidfile "$PID_FILE" --startas "$PWD/$0" --background --start start-foreground
+}
+
+stop() {
+      start-stop-daemon --remove-pidfile --pidfile "$PID_FILE" --stop --retry INT/30/TERM/30/KILL/5
+}
+
+status() {
+      start-stop-daemon --pidfile "$PID_FILE" --status
+}
+
+case "$1" in
+start)
+      start
+      ;;
+start-fg | start-foreground)
+      start_foreground
+      ;;
+cli)
+      start_cli
+      ;;
+stop)
+      stop
+      ;;
+status)
+      status
+      ;;
+restart|reload|condrestart)
+      stop
+      start
+      ;;
+*)
+      echo $"Usage: $0 {start|stop|restart|reload|status|start-fg}"
+      exit 1
+esac
+
+exit 0

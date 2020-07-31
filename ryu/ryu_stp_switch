@@ -1,0 +1,39 @@
+#!/bin/bash
+
+PID_FILE=/run/ryu-stp-switch.pid
+BASE_DIR="$(dirname $0)"
+
+start_foreground() {
+      cd "$BASE_DIR"
+      #exec ryu run --observe-links ryu.app.gui_topology.gui_topology simple_switch_stp_13.py --default-log-level 40
+      exec ryu run ryu.app.gui_topology.gui_topology simple_switch_stp_13.py --default-log-level 20
+}
+
+start() {
+      start-stop-daemon --make-pidfile --pidfile "$PID_FILE" --startas "$PWD/$0" --chdir "$(dirname $0)" --background --start start-foreground
+}
+
+stop() {
+      start-stop-daemon --remove-pidfile --pidfile "$PID_FILE" --stop --retry INT/30/TERM/30/KILL/5
+}
+
+case "$1" in
+start)
+      start
+      ;;
+start-fg | start-foreground)
+      start_foreground
+      ;;
+stop)
+      stop
+      ;;
+restart|reload)
+      stop
+      start
+      ;;
+*)
+      echo $"Usage: $0 {start|stop|restart|reload|start-fg}"
+      exit 1
+esac
+
+exit 0

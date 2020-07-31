@@ -1,0 +1,16 @@
+constants:
+  docker_container_name: ryu-sdn-1
+  docker_image: mperhez/ryu-sdn-controller
+  docker_network: mas-network
+
+containers:
+- name: $docker_container_name
+  hostname: $docker_container_name
+  image: $docker_image
+  volumes: 
+    $base_dir++/ryu:
+      bind: /scripts
+      mode: ro
+  command: /scripts/ryu_stp_switch start-foreground
+  network: $docker_network
+  remove: True

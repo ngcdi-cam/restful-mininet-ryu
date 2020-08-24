@@ -1,0 +1,3 @@
+[submodule "ryu/network_awareness"]
+	path = ryu/network_awareness
+	url = https://github.com/ngcdi-cam/ryu-network-awareness

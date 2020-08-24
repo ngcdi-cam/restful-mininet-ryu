@@ -18,6 +18,7 @@ __maintainer__ = "Carlos Giraldo"
 __email__ = "carlitosgiraldo@gmail.com"
 __status__ = "Prototype"
 
+DEFAULT_BW = 10000
 
 class MininetRest(Bottle):
     def __init__(self, net):
@@ -72,7 +73,9 @@ class MininetRest(Bottle):
     def get_links(self):
         return {'links': [dict(name=l.intf1.node.name + '-' + l.intf2.node.name,
                                node1=l.intf1.node.name, node2=l.intf2.node.name,
-                               intf1=l.intf1.name, intf2=l.intf2.name) for l in self.net.links]}
+                               intf1=l.intf1.name, intf2=l.intf2.name,
+                               bw1=l.intf1.params.get('bw', DEFAULT_BW) * 1000, # kbps
+                               bw2=l.intf2.params.get('bw', DEFAULT_BW) * 1000) for l in self.net.links]}
 
     def do_cmd(self, node_name):
         args = request.body.read().decode('utf-8')

@@ -6,6 +6,8 @@ BASE_DIR="$(dirname $0)"
 MN_CLI_COMMAND="restful_api $MN_RESTFUL_HOST $MN_RESTFUL_PORT"
 PID_FILE=/run/mininet_rest.pid
 
+ENDLINE=$'\n'
+
 source "$BASE_DIR/mininet_rest.conf"
 
 MN_CONTROLLER_IP=${MN_CONTROLLER_HOST:+$(getent ahostsv4 "$MN_CONTROLLER_HOST" | head -n1 | awk '{print $1}')}
@@ -19,12 +21,19 @@ prestart() {
 
 start_foreground() {
       prestart
+      echo "Controller Host is $MN_CONTROLLER_HOST"
+      echo "Controller IP is $MN_CONTROLLER_IP"
       exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
 
 start_cli() {
       prestart
       exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS
+}
+
+start_xterm_and_rest() {
+      prestart
+      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS <<< "xterm h1 h2$ENDLINE$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
 
 start() {
@@ -48,6 +57,9 @@ start-fg | start-foreground)
       ;;
 cli)
       start_cli
+      ;;
+x)
+      start_xterm_and_rest
       ;;
 stop)
       stop

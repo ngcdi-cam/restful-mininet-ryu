@@ -1,12 +1,11 @@
 #!/bin/bash
 
-PID_FILE=/run/ryu-stp-switch.pid
+PID_FILE=/run/ryu-app.pid
 BASE_DIR="$(dirname $0)"
 
 start_foreground() {
       cd "$BASE_DIR"
-      #exec ryu run --observe-links ryu.app.gui_topology.gui_topology simple_switch_stp_13.py --default-log-level 40
-      exec ryu run ryu.app.gui_topology.gui_topology simple_switch_stp_13.py --default-log-level 20
+      exec ryu run ryu.app.network_awareness.shortest_forwarding ryu.app.network_awareness.restful_server ryu.app.ofctl_rest ryu.app.rest_topology --observe-links --k-paths=10 --weight=all
 }
 
 start() {

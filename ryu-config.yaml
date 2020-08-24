@@ -11,6 +11,6 @@ containers:
     $base_dir++/ryu:
       bind: /scripts
       mode: ro
-  command: /scripts/ryu_stp_switch start-foreground
+  command: /scripts/ryu_app start-foreground
   network: $docker_network
   remove: True

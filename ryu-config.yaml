@@ -1,6 +1,6 @@
 constants:
   docker_container_name: ryu-sdn-1
-  docker_image: mperhez/ryu-sdn-controller
+  docker_image: mbyzhang/awareness
   docker_network: mas-network
 
 containers:

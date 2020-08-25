@@ -1,2 +1,2 @@
 #!/bin/sh
-run_containers.py -c ryu-config.yaml && run_containers.py -c mininet-config.yaml
+run_containers.py ryu-config.yaml && run_containers.py mininet-config.yaml

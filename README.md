@@ -8,14 +8,34 @@ Ryu SDN controller with RESTful Mininet.
 
 ## Getting Started
 
+Clone the repo first
+
+```
+$ git clone https://github.com/ngcdi-cam/restful-mininet-ryu --recursive --depth=1
+```
+
+Please note the `--recursive` flag.
 
 ### Start with `run_containers.py` in Docker containers
+
+#### Creating the Docker network
 
 Create the docker network. You only need to do this once.
 
 ```
 $ docker network create mas-network
 ```
+
+#### Building the Docker images
+
+```
+$ cd mininet
+$ docker build -t mbyzhang/mininet .
+$ cd ../ryu
+$ docker build -t mbyzhang/awareness . 
+```
+
+#### Running the containers
 
 Then, run
 
@@ -60,5 +80,6 @@ See `mininet/mininet_rest.conf`.
 ## Credit
 
 * [mininetRest](https://github.com/cgiraldo/mininetRest)
+* [ryu-network-awareness](https://github.com/ngcdi-cam/ryu-network-awareness)
 * [Mininet](http://mininet.org/)
 * [Ryu](https://ryu-sdn.org/)

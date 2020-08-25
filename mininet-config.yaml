@@ -1,6 +1,6 @@
 constants:
   docker_container_name: mnet1
-  docker_image: mperhez/mininet
+  docker_image: mbyzhang/mininet
   docker_network: mas-network
   mininet_controller_host: ryu-sdn-1
   mininet_topo: mesh,3,3

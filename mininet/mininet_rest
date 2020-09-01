@@ -17,6 +17,7 @@ prestart() {
       if ! pgrep -x ovs-vswitchd > /dev/null; then
             service openvswitch-switch start
       fi
+      mn --clean
 }
 
 start_foreground() {

@@ -1,4 +1,3 @@
-
 from mininet.topo import Topo
 from mininet.util import irange
 

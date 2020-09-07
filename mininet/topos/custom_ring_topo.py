@@ -12,8 +12,13 @@ class CustomRingTopo( Topo ):
         bw_low = 1
         bw_high = 10
 
+        bw_low = 0.1
+        bw_med = 1
+        bw_high = 10
+
         delay_low = '1ms'
-        delay_high = '50ms'
+        delay_med = '50ms'
+        delay_high = '100ms'
 
         self.addLink(s1, s2, bw=bw_high, delay=delay_high)
         self.addLink(s2, s3, bw=bw_high, delay=delay_high)
@@ -21,10 +26,12 @@ class CustomRingTopo( Topo ):
         self.addLink(s4, s9, bw=bw_high, delay=delay_high)
 
         self.addLink(s1, s5, bw=bw_low, delay=delay_low)
-        self.addLink(s5, s6, bw=bw_low, delay=delay_low)
-        self.addLink(s6, s7, bw=bw_low, delay=delay_low)
+        self.addLink(s5, s7, bw=bw_low, delay=delay_low)
         self.addLink(s7, s8, bw=bw_low, delay=delay_low)
         self.addLink(s8, s9, bw=bw_low, delay=delay_low)
+
+        self.addLink(s5, s6, bw=bw_low, delay=delay_med)
+        self.addLink(s6, s8, bw=bw_low, delay=delay_med)
 
         self.addLink(h1, s1)
         self.addLink(h2, s9)

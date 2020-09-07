@@ -5,7 +5,7 @@ BASE_DIR="$(dirname $0)"
 
 start_foreground() {
       cd "$BASE_DIR"
-      exec ryu run ryu.app.network_awareness.shortest_forwarding ryu.app.network_awareness.restful_server ryu.app.ofctl_rest ryu.app.rest_topology --observe-links --k-paths=10 --weight=all
+      exec ryu run ryu.app.network_awareness.shortest_forwarding ryu.app.network_awareness.restful_server ryu.app.ofctl_rest ryu.app.rest_topology --observe-links --k-paths=20 --weight=all
 }
 
 start() {

@@ -22,9 +22,23 @@ class CustomCompleteBipartiteTopo( Topo ):
 
         for l in left:
             for r in right:
-                self.addLink(l, r, bw=bw_high, delay=delay_high)
-        
+                bw = bw_low
+                delay = delay_high
+                if l is s2 and r is s6:
+                    bw = bw_high
+                elif l is s3 and r is s7:
+                    bw = bw_med
+                    delay = delay_low
+                elif l is s5 and r is s8:
+                    bw = bw_med
+                    delay = delay_med
 
+                self.addLink(l, r, bw=bw, delay=delay)
+        
+        for l in left:
+            self.addLink(s1, l)
+        for r in right:
+            self.addLink(s9, r)
         self.addLink(h1, s1)
         self.addLink(h2, s9)
 

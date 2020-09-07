@@ -20,8 +20,6 @@ For example, a ring topology with k=4 looks like
 
 where k is the number of switches (and also it's the number of hosts)
 
-Author: bz275
-
 '''
 
 

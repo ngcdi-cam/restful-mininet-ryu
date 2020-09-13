@@ -2,7 +2,7 @@ constants:
   docker_container_name: mnet1
   docker_image: mbyzhang/mininet
   docker_network: mas-network
-  mininet_controller_host: ryu-sdn-1
+  mininet_controllers: ryu-sdn-1:6653
   mininet_topo: mesh,3,3
 
 containers:
@@ -11,12 +11,12 @@ containers:
   image: $docker_image
   privileged: True
   environment:
-    MN_CONTROLLER_HOST: $mininet_controller_host
+    MN_CONTROLLERS: $mininet_controllers
     MN_TOPO: $mininet_topo
   volumes: 
     $base_dir++/mininet:
       bind: /mnscripts
       mode: ro
-  command: /mnscripts/mininet_rest start-foreground
+  command: /mnscripts/mininet_rest start-fg
   network: $docker_network
   remove: True

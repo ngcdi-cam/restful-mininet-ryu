@@ -10,71 +10,86 @@ ENDLINE=$'\n'
 
 source "$BASE_DIR/mininet_rest.conf"
 
-MN_CONTROLLER_IP=${MN_CONTROLLER_HOST:+$(getent ahostsv4 "$MN_CONTROLLER_HOST" | head -n1 | awk '{print $1}')}
+for controller in $MN_CONTROLLERS; do
+	controller_host="${controller%:*}"
+	controller_ip="$(getent ahostsv4 "$controller_host" | head -n1 | awk '{print $1}')"
+	if [ -z "$controller_ip" ]; then
+		echo "Error: cannot resolve controller hostname $controller_host"
+		exit 1
+	fi
+	controller_port="${controller#*:}"
+	controller_port="${controller_port:-6653}"
+	MN_CONTROLLER_ARGS+=("--controller" "remote,ip=$controller_ip,port=$controller_port")
+done
 
 prestart() {
-      cd "$BASE_DIR"
-      if ! pgrep -x ovs-vswitchd > /dev/null; then
-            service openvswitch-switch start
-      fi
-      mn --clean
+	cd "$BASE_DIR"
+	if ! pgrep -x ovs-vswitchd > /dev/null; then
+		service openvswitch-switch start
+	fi
+	mn --clean
 }
 
+MN_CMDLINE=(mn \
+	--custom "$MN_CUSTOM" \
+	${MN_TOPO:+"--topo" "$MN_TOPO"} \
+	"${MN_CONTROLLER_ARGS[@]}" \
+	--switch "${MN_SWITCH:-ovsk},protocols=OpenFlow13" \
+	$MN_EXT_FLAGS)
+
 start_foreground() {
-      prestart
-      echo "Controller Host is $MN_CONTROLLER_HOST"
-      echo "Controller IP is $MN_CONTROLLER_IP"
-      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
+	prestart
+	exec "${MN_CMDLINE[@]}" <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
 
 start_cli() {
-      prestart
-      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS
+	prestart
+	exec "${MN_CMDLINE[@]}"
 }
 
 start_xterm_and_rest() {
-      prestart
-      exec mn --custom "$MN_CUSTOM" ${MN_TOPO:+"--topo" "$MN_TOPO"} --controller "remote${MN_CONTROLLER_IP:+,ip=$MN_CONTROLLER_IP}${MN_CONTROLLER_PORT:+,port=$MN_CONTROLLER_PORT}" --switch=ovsk,protocols=OpenFlow13 $MN_EXT_FLAGS <<< "xterm h1 h2$ENDLINE$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
+	prestart
+	exec "${MN_CMDLINE[@]}" <<< "xterm h1 h2$ENDLINE$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
 
 start() {
-      start-stop-daemon --make-pidfile --pidfile "$PID_FILE" --startas "$PWD/$0" --background --start start-foreground
+	start-stop-daemon --make-pidfile --pidfile "$PID_FILE" --startas "$PWD/$0" --background --start start-foreground
 }
 
 stop() {
-      start-stop-daemon --remove-pidfile --pidfile "$PID_FILE" --stop --retry INT/30/TERM/30/KILL/5
+	start-stop-daemon --remove-pidfile --pidfile "$PID_FILE" --stop --retry INT/30/TERM/30/KILL/5
 }
 
 status() {
-      start-stop-daemon --pidfile "$PID_FILE" --status
+	start-stop-daemon --pidfile "$PID_FILE" --status
 }
 
 case "$1" in
-start)
-      start
-      ;;
-start-fg | start-foreground)
-      start_foreground
-      ;;
-cli)
-      start_cli
-      ;;
-x)
-      start_xterm_and_rest
-      ;;
-stop)
-      stop
-      ;;
-status)
-      status
-      ;;
-restart|reload|condrestart)
-      stop
-      start
-      ;;
-*)
-      echo $"Usage: $0 {start|stop|restart|reload|status|start-fg}"
-      exit 1
+	start)
+		start
+		;;
+	start-fg | start-foreground)
+		start_foreground
+		;;
+	cli)
+		start_cli
+		;;
+	x)
+		start_xterm_and_rest
+		;;
+	stop)
+		stop
+		;;
+	status)
+		status
+		;;
+	restart|reload|condrestart)
+		stop
+		start
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|restart|reload|status|start-fg|cli|x}"
+		exit 1
 esac
 
 exit 0

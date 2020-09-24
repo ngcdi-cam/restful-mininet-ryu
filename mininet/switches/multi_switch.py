@@ -15,7 +15,7 @@ class MultiSwitch(OVSSwitch):
             self.cmap = cmap
         else:
             raise Exception("Bad cmap type: %s" % type(cmap))
-        super().__init__(name, **kwargs)
+        super(MultiSwitch, self).__init__(name, **kwargs)
 
     def start(self, controllers):
         if self.cmap is None:

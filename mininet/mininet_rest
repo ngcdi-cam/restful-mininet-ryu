@@ -11,13 +11,14 @@ ENDLINE=$'\n'
 source "$BASE_DIR/mininet_rest.conf"
 
 for controller in $MN_CONTROLLERS; do
-	controller_host="${controller%:*}"
+	IFS=: read -ra controller_tuple <<< "$controller"
+	controller_host="${controller_tuple[0]}"
 	controller_ip="$(getent ahostsv4 "$controller_host" | head -n1 | awk '{print $1}')"
 	if [ -z "$controller_ip" ]; then
 		echo "Error: cannot resolve controller hostname $controller_host"
 		exit 1
 	fi
-	controller_port="${controller#*:}"
+	controller_port="${controller_tuple[1]}"
 	controller_port="${controller_port:-6653}"
 	MN_CONTROLLER_ARGS+=("--controller" "remote,ip=$controller_ip,port=$controller_port")
 done
@@ -39,6 +40,7 @@ MN_CMDLINE=(mn \
 
 start_foreground() {
 	prestart
+	echo "Starting mininet: ${MN_CMDLINE[@]}"
 	exec "${MN_CMDLINE[@]}" <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
 

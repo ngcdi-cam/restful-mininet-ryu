@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from bottle import Bottle, request
 import time
-
+import threading
 from mininet.cli import CLI
 
 """
@@ -113,11 +113,17 @@ def restful_api(self, line):
     args = line.split()
     host = '127.0.0.1'
     port = 8080
+    background = False
     if len(args) >= 1:
         host = args[0]
     if len(args) >= 2:
         port = int(args[1])
+    if len(args) >= 3:
+        background = True
 
-    MininetRest(net).run(host=host, port=port)
+    if background:
+        threading.Thread(target=lambda: MininetRest(net).run(host=host, port=port)).start()
+    else:
+        MininetRest(net).run(host=host, port=port)
 
 CLI.do_restful_api = restful_api

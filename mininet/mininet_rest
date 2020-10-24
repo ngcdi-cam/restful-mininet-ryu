@@ -38,7 +38,7 @@ MN_CMDLINE=(mn \
 	--switch "${MN_SWITCH:-ovsk},protocols=OpenFlow13" \
 	$MN_EXT_FLAGS)
 
-start_foreground() {
+start_rest() {
 	prestart
 	echo "Starting mininet: ${MN_CMDLINE[@]}"
 	exec "${MN_CMDLINE[@]}" <<< "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
@@ -49,7 +49,13 @@ start_cli() {
 	exec "${MN_CMDLINE[@]}"
 }
 
-start_xterm_and_rest() {
+start_cli_with_rest() {
+	prestart
+	echo "Starting mininet: ${MN_CMDLINE[@]}"
+	cat <(echo "$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT 1") - | exec "${MN_CMDLINE[@]}"
+}
+
+start_xterm_with_rest() {
 	prestart
 	exec "${MN_CMDLINE[@]}" <<< "xterm h1 h2$ENDLINE$MN_CLI_COMMAND $MN_RESTFUL_ADDR $MN_RESTFUL_PORT"
 }
@@ -70,14 +76,17 @@ case "$1" in
 	start)
 		start
 		;;
-	start-fg | start-foreground)
-		start_foreground
+	rest | start-fg | start-foreground)
+		start_rest
 		;;
 	cli)
 		start_cli
 		;;
 	x)
-		start_xterm_and_rest
+		start_xterm_with_rest
+		;;
+	rest-cli)
+		start_cli_with_rest
 		;;
 	stop)
 		stop
